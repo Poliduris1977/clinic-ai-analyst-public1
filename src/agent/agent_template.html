@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ИИ-агент директора: клиника, 2025</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='13'%3E%F0%9F%A9%BA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b2430;--mut:#667085;--ln:#dde2ea;--ac:#1f3864;--acx:#fff;--warn:#fff4d6;--warnl:#e5c76b;--ok:#e6f3ea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--card:#1a2029;--tx:#e8ecf2;--mut:#98a2b3;--ln:#2d3644;--ac:#8fb0ee;--acx:#10151c;--warn:#3a321a;--warnl:#7a6a2c;--ok:#1d3326}}
+*{box-sizing:border-box}html,body{margin:0}
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:860px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:20px;margin:0 0 4px}.sub{color:var(--mut);font-size:13px;margin:0 0 14px}
+.tag{display:inline-block;background:var(--warn);border:1px solid var(--warnl);border-radius:6px;padding:4px 8px;font-size:12px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.chip{border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:16px;padding:6px 11px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--ac)}
+form{display:flex;gap:8px;margin-bottom:14px}
+input[type=text],textarea{flex:1;font:inherit;padding:9px 11px;border:1px solid var(--ln);border-radius:8px;background:var(--card);color:var(--tx);min-width:0}
+button.go{background:var(--ac);color:var(--acx);border:0;border-radius:8px;padding:9px 16px;font:inherit;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:17px;margin:0 0 8px}.card h3{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:12px 0 4px}
+.card p{margin:0 0 6px}.note{background:var(--warn);border:1px solid var(--warnl);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:14px}
+.who{display:flex;gap:10px;flex-wrap:wrap}.who div{flex:1;min-width:200px;background:var(--ok);border-radius:8px;padding:7px 10px;font-size:14px}
+.act{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.act textarea{min-height:40px;resize:vertical}
+.act button{border:1px solid var(--ac);background:transparent;color:var(--ac);border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--ln);padding:5px 6px;text-align:left}
+.sc{overflow-x:auto}details{margin-bottom:12px}summary{cursor:pointer;font-weight:600;padding:4px 0}
+</style></head>
+<body><main>
+<h1>ИИ-агент директора</h1>
+<p class="sub">Демонстрационная модель сети клиник, данные 2025 года (синтетика). Числа берутся только из функций доступа к данным, совпадающих с логикой книг Excel.</p>
+<div class="tag">Это не языковая модель: агент распознаёт вопрос, вызывает функции и собирает ответ по шаблону с проверкой каждого числа. Вопросы вне набора получают явный ответ «в данных нет».</div>
+<div class="chips" id="chips"></div>
+<form id="f"><input type="text" id="q" placeholder="Задайте вопрос, например: почему в мае прибыль ниже плана?" autocomplete="off"><button class="go">Спросить</button></form>
+<div id="out"></div>
+<details><summary>Кто решает и кто подтверждает</summary><div class="card sc"><table id="roles"></table></div></details>
+<details open><summary>Журнал решений и замечаний</summary><div class="card sc"><div class="act" style="margin:0 0 8px"><button id="jdl" type="button">Скачать журнал (CSV)</button><button id="jupb" type="button">Загрузить журнал</button><input type="file" id="jup" accept=".csv,text/csv" hidden><span id="jmsg" class="sub" style="margin:6px 0 0"></span></div><table id="jr"><tr><td>Пока пусто</td></tr></table></div></details>
+</main>
+<script>
+const D=__DATA__;
+const SAMPLES=["Почему мы не выполнили план по прибыли?","Хватит ли денег, если страховые задержат платежи на 30 дней?","Стоит ли отменить скидки?","Какие врачи дают самый низкий вклад и что с ними делать?","Чего ждать в первом квартале 2026?","Почему выручка в ERP не совпадает с бухгалтерией?"];
+const DIRS={"стомат":"DENT","семейн":"FAM","космет":"COSM","пластик":"PLAS","лазер":"LASER"};
+const MRX=[/янв/,/фев/,/март|мар[еу](?![а-я])/,/апр/,/(^|[^а-я])ма[йея](?![а-я])/,/июн/,/июл/,/авг/,/сен/,/окт/,/ноя/,/дек/];
+const INTENTS=[["q3",/скидк/,4],["q2",/денег|ликвидн|страхов|задерж|касс|разрыв|остаток|остатк/,2],["q4",/врач|доктор|вклад|d\d{3}/,2],
+ ["q5",/прогноз|ждать|ожида|будущ|следующ|квартал/,2],["q6",/сверк|1с|1c|бухгалт|не совпад|расхожд|erp/,2],["q1",/прибыл|план|не выполн|маржа|упал|отклонен|убыт/,1]];
+const store=(()=>{let mem=[];return{get(){try{const s=localStorage.getItem("jr");return s?JSON.parse(s):mem}catch(e){return mem}},set(a){mem=a;try{localStorage.setItem("jr",JSON.stringify(a))}catch(e){}}}})();
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const CUE34=/в отч[её]т|по отч[её]ту|в книг|у меня|а у вас|у вас друг|расход|не сход|не совпад|друг(ая|ое|ой)|отличает|разниц/;
+const VL={rev:["выручка по книгам 1С","выручка в ERP после исправлений","выручка в ERP до исправлений сверки","плановая выручка"],prof:["прибыль до налога, факт","прибыль до налога, план"],mar:["маржа после материалов и лабораторий, факт","маржа после материалов и лабораторий, план"]};
+const IX={rev:[0,1,2,3],prof:[4,5],mar:[6,7]},INDN={rev:"выручка",prof:"прибыль до налога",mar:"маржа"};
+const KIND={rev1:"источник данных: ERP вместо книг 1С",rev2:"версия данных: до исправлений сверки",rev3:"определение показателя: план вместо факта",prof1:"определение показателя: план вместо факта",mar1:"определение показателя: план вместо факта"};
+const IND_=[["rev",/выручк/],["prof",/прибыл/],["mar",/маржа|маржи|маржу/]];
+const fm=x=>{const a=Math.abs(x),s=x<0?"\u2212":"";return a>=1e6?s+(a/1e6).toFixed(2).replace(".",",")+"\u00a0млн\u00a0₽":s+Math.round(a/1e3)+"\u00a0тыс.\u00a0₽"};
+function scopeOf(t){let mo=0;MRX.forEach((r,i)=>{if(r.test(t))mo=i+1});let di="";for(const k in DIRS)if(t.includes(k))di=DIRS[k];return {mo,di}}
+function slabel(mo,di,cl){const p=[mo?D.mon[mo-1].toLowerCase()+" 2025":"2025 год"];if(di)p.push(D.dirs[di]);if(cl)p.push("клиника "+cl);return p.join(", ")}
+function parseAmt(t){const m=t.match(/(\d[\d\s\u00a0]*(?:[.,]\d+)?)\s*(млрд|млн|тыс|₽|руб)/);if(!m)return null;
+ const raw=m[1].replace(/[\s\u00a0]/g,"").replace(",","."),sc={"млрд":1e9,"млн":1e6,"тыс":1e3,"₽":1,"руб":1}[m[2]],dec=(raw.split(".")[1]||"").length;
+ return {v:parseFloat(raw)*sc,tol:0.5*sc*Math.pow(10,-dec)}}
+function p34(t,amt,cl){
+ const hit=IND_.find(([k,rx])=>rx.test(t));
+ if(!hit)return nodata("Уточните, о каком показателе цифра отчёта: выручка, прибыль до налога или маржа.","Нужно уточнение");
+ const ind=hit[0],{mo,di}=scopeOf(t),key=`${mo}|${di}|${cl}`,V=D.V[key];
+ if(!V)return nodata("Такого среза (месяц, направление, клиника) в данных нет.");
+ if(ind==="prof"&&di)return nodata("Прибыль до налога по направлению в данных не считается: оплата врачей и общие затраты не распределены по направлениям. Назовите маржу или уберите направление.","Нужно уточнение");
+ const sl=slabel(mo,di,cl),near=x=>x!=null&&Math.abs(x-amt.v)<=amt.tol+0.5,base=V[IX[ind][0]],diff=amt.v-base;
+ const head=`В отчёте ${INDN[ind]} (${sl}) ${fm(amt.v)}; по данным агента ${fm(base)} (${VL[ind][0]}); разница ${fm(diff)}, ${(diff/base*100).toFixed(2).replace(".",",").replace("-","\u2212")}%.`;
+ const out=(title,answer)=>({title,answer,unproven:["Агент не видит сам отчёт, а сравнивает названную цифру со значениями в данных: совпадение чисел указывает на вероятную причину, но не доказывает её, формулу отчёта нужно открыть.","Допуск взят из точности названной цифры: ±"+fm(amt.tol)+"."],dq:[D.dq34],decides:"Главный бухгалтер",confirms:"Аналитик"});
+ if(near(base))return out("Расхождения нет",[head+" В пределах округления отчёта цифры совпадают."]);
+ const A=[];for(const k of Object.keys(IX))for(let j=0;j<IX[k].length;j++){if(k===ind&&j===0)continue;if(k==="prof"&&di)continue;const x=V[IX[k][j]];if(near(x))A.push({k,j,x})}
+ const B=[];for(const k2 in D.V){if(k2===key)continue;const x=D.V[k2][IX[ind][0]];if(near(x)){const [a,b,c]=k2.split("|");B.push({a:+a,b,c,x,n:(+a?1:0)+(b?1:0)+(c?1:0),d:Math.abs(x-amt.v)})}}
+ B.sort((u,w)=>u.n-w.n||u.d-w.d);
+ const ans=[head];
+ for(const m of A)ans.push(`Совпадает со значением «${VL[m.k][m.j]}» ${fm(m.x)}: ${m.k===ind?KIND[m.k+m.j]:"другой показатель"+(m.j?" (план)":"")}.`);
+ for(const m of B.slice(0,3))ans.push(`По охвату: цифра совпадает со значением показателя за срез «${slabel(m.a,m.b,m.c)}» ${fm(m.x)}; возможное расхождение в фильтре отчёта.`);
+ if(A.length===1)return out("Расхождение: причина установлена",ans);
+ if(A.length||B.length)return out("Расхождение: возможные причины",ans);
+ ans.push("Ни версия данных (ERP до исправлений), ни другой показатель (выручка, прибыль, маржа, план), ни другой охват (месяц, направление, клиника) не дают такой цифры с этим допуском. Предлагаю назначить ответственного: главный бухгалтер, подтверждает аналитик; запись создаётся кнопкой «Замечание в журнал».");
+ return out("Расхождение: причина не установлена",ans)}
+const JH=["id","вид","дата","вопрос","заголовок","комментарий","основание","ответственный","статус"];
+function toCsv(a){const q=s=>'"'+String(s==null?"":s).replace(/"/g,'""')+'"';return "\ufeff"+JH.join(";")+"\r\n"+a.map(e=>[e.id,e.k,e.w,e.q,e.t,e.c,e.s,e.d,e.st].map(q).join(";")).join("\r\n")+"\r\n"}
+function fromCsv(x){x=x.replace(/^\ufeff/,"");const rows=[];let f="",r=[],q=false;
+ for(let i=0;i<x.length;i++){const c=x[i];
+  if(q){if(c==='"'){if(x[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+  else if(c==='"')q=true;else if(c===";"){r.push(f);f=""}else if(c==="\r"){}else if(c==="\n"){r.push(f);rows.push(r);r=[];f=""}else f+=c}
+ if(f!==""||r.length){r.push(f);rows.push(r)}
+ return rows.slice(1).filter(r=>r.length>=9&&/^(РЕШ|ЗАМ)-\d+$/.test(r[0])).map(r=>({id:r[0],k:r[1],w:r[2],q:r[3],t:r[4],c:r[5],s:r[6],d:r[7],st:r[8]}))}
+function mergeJ(a,b){const ids=new Set(a.map(e=>e.id));const add=b.filter(e=>!ids.has(e.id));return {all:a.concat(add),added:add.length,skipped:b.length-add.length}}
+function nodata(msg,ttl){return {title:ttl||"В данных ответа нет",answer:[msg],unproven:["Агент не подставляет число из другого периода или другой клиники и не оценивает по памяти."],dq:["Не применимо."],decides:"Аналитик",confirms:"Финансовый директор",plain:true}}
+function route(raw){
+ const t=raw.toLowerCase().replace(/ё/g,"е");let pre=null;
+ if(/подтверд|докаж|ведь|правда,? что|верно,? что/.test(t))pre="Вопрос содержит готовый вывод. Агент его не принимает, а проверяет по данным; ниже то, что они показывают.";
+ const yr=t.match(/\b(19|20)\d\d\b/);
+ let best=null,sc=0;for(const [k,rx,w] of INTENTS){const m=t.match(new RegExp(rx.source,"g"));if(m&&m.length*w>sc){sc=m.length*w;best=k}}
+ if(yr&&yr[0]!=="2025"&&!(yr[0]==="2026"&&best==="q5"))return {r:nodata(`Данные есть только за ${"2025"} год (прогноз только на I квартал ${"2026"}). Период «${yr[0]}» в модели отсутствует.`)};
+ const cm=t.match(/\bc0?(\d)\b|клиник[аиу]?\s*(?:№|n)?\s*0?(\d)\b/);let cl="";
+ if(cm){const n=+(cm[1]||cm[2]);if(n<1||n>3)return {r:nodata(`Клиники «C0${n}» в данных нет: в сети три клиники, C01, C02 и C03.`)};cl="C0"+n}
+ const amt=parseAmt(t);if(amt&&CUE34.test(t))return {r:p34(t,amt,cl),pre};
+ if(!best)for(const s in D.names)if(t.includes(s))best="q4";
+ if(!best)return {r:nodata("Этот вопрос вне набора, по которому у агента есть функции доступа к данным. Могу ответить о прибыли и плане, скидках, ликвидности при задержке страховых, врачах, прогнозе на I квартал 2026 и сверке с 1С.")};
+ if(best==="q1"){const {mo,di}=scopeOf(t);return {r:D.P[`q1|${mo}|${di}|${cl}`],pre}}
+ if(best==="q2"){let n=30;const NW={"один":1,"одну":1,"два":2,"две":2,"три":3,"четыре":4,"пять":5,"шесть":6};const num=s=>s?(NW[s]||+s||1):1;
+  const m=t.match(/(\d+)\s*(дн|день|дня)/),w=t.match(/(\d+|[а-я]+)?\s*недел/),mo=t.match(/(\d+|[а-я]+)?\s*месяц/);
+  if(m)n=+m[1];else if(w)n=7*num(w[1]);else if(mo)n=30*num(mo[1]);
+  if(n>90)return {r:nodata("Стресс-сценарий посчитан для задержки до 90 дней, для больших сроков функции нет.")};return {r:D.P[`q2|${n}|${cl}`],pre}}
+ if(best==="q4"){const id=t.match(/d\d{3}/i);let key="";if(id)key=id[0].toUpperCase();else for(const s in D.names)if(t.includes(s)){const c=D.names[s];if(c.length>1)return {r:nodata("Уточните врача: в базе несколько однофамильцев, "+c.map(x=>x[1]+" ("+x[0]+")").join(", ")+".","Нужно уточнение")};key=c[0][0]}
+  if(id&&!D.P["q4|"+key])return {r:nodata(`Врача «${key}» в данных нет: в базе 43 врача, D001-D043.`)};return {r:D.P["q4|"+key],pre}}
+ return {r:D.P[best],pre}}
+function render(x,q){const {r,pre}=x;let h=`<div class="card"><h2>${esc(r.title)}</h2>`;
+ if(pre)h+=`<div class="note">${esc(pre)}</div>`;
+ h+=`<h3>Что показывают данные</h3>`+r.answer.map(p=>`<p>${esc(p)}</p>`).join("");
+ h+=`<h3>Что не доказано</h3>`+r.unproven.map(p=>`<p>${esc(p)}</p>`).join("");
+ h+=`<h3>Статус данных</h3>`+r.dq.map(p=>`<p>${esc(p)}</p>`).join("");
+ h+=`<h3>Ответственность</h3><div class="who"><div><b>Решает:</b> ${esc(r.decides)}</div><div><b>Подтверждает или исправляет:</b> ${esc(r.confirms)}</div></div>`;
+ if(!r.plain)h+=`<div class="act"><textarea id="cm" rows="1" placeholder="Комментарий: решение или замечание к цифре"></textarea><button data-k="РЕШ">Записать решение</button><button data-k="ЗАМ">Замечание в журнал</button></div>`;
+ document.getElementById("out").innerHTML=h+"</div>";
+ document.querySelectorAll(".act button").forEach(b=>b.onclick=()=>add(b.dataset.k,r,q))}
+function add(k,r,q){const c=document.getElementById("cm").value.trim();if(!c){document.getElementById("cm").focus();return}
+ const a=store.get();const n=Math.max(0,...a.filter(e=>e.k===k).map(e=>+e.id.split("-")[1]))+1;a.push({id:k+"-"+String(n).padStart(3,"0"),k,q,t:r.title,c,d:r.decides,s:r.answer[0],w:new Date().toLocaleString("ru-RU"),st:k==="ЗАМ"?"открыто":"принято к сведению"});store.set(a);jr();document.getElementById("cm").value=""}
+function jr(){const a=store.get();document.getElementById("jr").innerHTML=a.length?"<tr><th>№</th><th>Дата</th><th>Вопрос</th><th>Запись</th><th>Основание (цифра из ответа)</th><th>Статус</th></tr>"+a.map(e=>`<tr><td>${e.id}</td><td>${esc(e.w)}</td><td>${esc(e.t)}</td><td>${esc(e.c)}</td><td>${esc(e.s.slice(0,110))}…</td><td>${e.st}</td></tr>`).join(""):"<tr><td>Пока пусто</td></tr>"}
+document.getElementById("chips").innerHTML=SAMPLES.map(s=>`<button class="chip">${s}</button>`).join("");
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{document.getElementById("q").value=b.textContent;ask(b.textContent)});
+document.getElementById("roles").innerHTML="<tr><th>Тип решения</th><th>Решает</th><th>Подтверждает</th></tr>"+D.roles.map(r=>"<tr>"+r.map(c=>`<td>${esc(c)}</td>`).join("")+"</tr>").join("");
+function ask(q){q=q.trim();if(q)render(route(q),q)}
+document.getElementById("f").onsubmit=e=>{e.preventDefault();ask(document.getElementById("q").value)};
+document.getElementById("jdl").onclick=()=>{const a=store.get(),b=new Blob([toCsv(a)],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(b),l=document.createElement("a");l.href=u;l.download="journal_"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);document.getElementById("jmsg").textContent="Сохранено записей: "+a.length}
+document.getElementById("jupb").onclick=()=>document.getElementById("jup").click();
+document.getElementById("jup").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const b=fromCsv(String(rd.result)),m=document.getElementById("jmsg");if(!b.length){m.textContent="В файле нет записей журнала.";return}const g=mergeJ(store.get(),b);store.set(g.all);jr();m.textContent=`Загружено новых записей: ${g.added}, пропущено дублей: ${g.skipped}`};rd.readAsText(f,"utf-8");e.target.value=""};
+jr();window.__route=route;
+</script></body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дашборд сети клиник, 2025</title>
+<style>
+:root{--bg:#f3f4f2;--panel:#fff;--ink:#1c2430;--mute:#5d6877;--line:#d9dcd8;--ok:#1d7a63;--miss:#b4690e;--bad:#b23b3b;--okbg:#e2f1ec;--missbg:#f8ecd9;--badbg:#f6e1e1;
+--serif:"Iowan Old Style","Palatino Linotype",Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#14191f;--panel:#1c232b;--ink:#e6e9ec;--mute:#9aa5b1;--line:#323b46;--ok:#4cc0a0;--miss:#e0a04a;--bad:#e27b7b;--okbg:#17332b;--missbg:#3a2d17;--badbg:#3b1f1f}}
+:root[data-theme=dark]{--bg:#14191f;--panel:#1c232b;--ink:#e6e9ec;--mute:#9aa5b1;--line:#323b46;--ok:#4cc0a0;--miss:#e0a04a;--bad:#e27b7b;--okbg:#17332b;--missbg:#3a2d17;--badbg:#3b1f1f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+header{padding:20px 24px 0;max-width:1100px;margin:0 auto}
+h1{font:600 24px/1.2 var(--serif);margin:0 0 4px}h2{font:600 20px/1.25 var(--serif);margin:0 0 8px}h3{font:600 16px var(--sans);margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 14px}
+nav{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mute);padding:9px 12px;font:inherit;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ok);font-weight:600}
+nav button:focus-visible{outline:2px solid var(--ok);outline-offset:-2px}
+main{max-width:1100px;margin:0 auto;padding:20px 24px 48px}
+.stub{border:1px dashed var(--line);border-radius:8px;padding:28px;color:var(--mute);background:var(--panel)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+@media(max-width:720px){.cols{grid-template-columns:1fr}}
+.run{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.run.first{border-top:4px solid var(--miss)}.run.second{border-top:4px solid var(--ok)}
+.tag{font-size:13px;color:var(--mute);margin-bottom:8px}
+.big{font:600 40px/1 var(--serif)}.big small{font:400 15px var(--sans);color:var(--mute)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-top:10px;font-size:14px}.kv span:nth-child(even){text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.bar{height:8px;background:var(--line);border-radius:4px;margin-top:10px;overflow:hidden}.bar i{display:block;height:100%}
+.note{background:var(--missbg);border-left:4px solid var(--miss);padding:10px 14px;border-radius:4px;margin:14px 0;font-size:14px}
+.okbox{background:var(--okbg);border-left:4px solid var(--ok);padding:10px 14px;border-radius:4px;margin:14px 0;font-size:14px}
+.tw{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--mute);background:var(--bg)}tr:last-child td{border-bottom:0}
+.m{display:inline-block;min-width:76px;text-align:center;border-radius:4px;padding:1px 8px;font-size:13px;font-weight:600}
+.m.y{background:var(--okbg);color:var(--ok)}.m.n{background:var(--missbg);color:var(--miss)}
+.sub2{color:var(--mute);font-size:13px}
+#theme{float:right;background:none;border:1px solid var(--line);color:var(--mute);border-radius:6px;padding:4px 10px;cursor:pointer;font:inherit;font-size:13px}
+@media print{nav,#theme{display:none}.tab{display:block!important}body{background:#fff}}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}@media(max-width:720px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}.kpi .big{font-size:32px}.neg{color:var(--bad)}.pos{color:var(--ok)}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 12px 6px;margin:12px 0}.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--mute);font:11px var(--sans)}.legend{font-size:13px;color:var(--mute);margin:0 0 4px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px;vertical-align:baseline}
+</style>
+</head>
+<body>
+<header>
+<button id="theme" type="button">Тема</button>
+<h1>Сеть клиник: управленческая отчётность 2025</h1>
+<p class="sub">Данные синтетические: цифры показывают метод, а не реальную эффективность клиник.</p>
+<nav role="tablist" id="nav"></nav>
+</header>
+<main id="main"></main>
+<script>
+const D=/*DATA*/null;
+const TABS=[["overview","Обзор"],["pnl","P&L и план-факт"],["cash","Деньги"],["doctors","Врачи"],["patients","Пациенты и прогноз"],["quality","Качество данных"],["about","О данных"]];
+const pct=(a,b)=>Math.round(100*a/b);
+const $=(h)=>{const t=document.createElement("template");t.innerHTML=h.trim();return t.content.firstChild};
+function stub(name,what){return `<h2>${name}</h2><div class="stub">Вкладка в работе. Будет: ${what}</div>`}
+function runCard(cls,tag,hash,found,sub,rows,color){
+  return `<div class="run ${cls}"><div class="tag">${tag}</div>
+  <div class="big">${found}<small> из 14 ошибок найдено</small></div>
+  <div class="bar" aria-hidden="true"><i style="width:${pct(found,14)}%;background:${color}"></i></div>
+  <div class="kv">${rows.map(r=>`<span>${r[0]}</span><span>${r[1]}</span>`).join("")}</div>
+  <p class="sub2">Версия правил: ${hash}</p></div>`}
+function quality(){
+  const r1=D.run1,r2=D.run2,E=D.errors;
+  const nf=E.filter(e=>!e.first).map(e=>e.id).join(", ");
+  const tr=E.map(e=>`<tr><td>${e.id}</td><td>${e.name}</td><td>${e.subtle?"тонкая":"обычная"}</td>
+   <td><span class="m ${e.first?"y":"n"}">${e.first?"найдена":"пропущена"}</span></td>
+   <td><span class="m y">найдена</span></td>
+   <td class="sub2">${e.first?(e.cause==="да"?"причина названа":"только симптом (расхождение поступлений)"):"проверки не было"}</td></tr>`).join("");
+  return `<h2>Качество данных</h2>
+  <p class="sub">Сверка ERP с 1С: на основном наборе ошибок найдено ${D.recon.found}, остаток после исправлений ${D.recon.residual}. Ниже проверка того, умеет ли сверка находить ошибки, которых автор правил не закладывал.</p>
+  <h3>Проверка сверки на втором наборе ошибок, два прогона рядом</h3>
+  <p class="sub2">Набор из 14 ошибок написан отдельно от автора правил, по схеме данных. Это второй набор, внесённый вне автора правил, а не независимая проверка.</p>
+  <div class="cols">
+   ${runCard("first","Первый прогон: слепой, правила заморожены",D.hash1,D.found1,"",[
+     ["Тонких найдено",D.subtle_found+" из 6"],["Обычных найдено",D.plain_found+" из 8"],
+     ["Находок-первопричин",r1.findings],["Из них верных",r1.correct+" ("+pct(r1.correct,r1.findings)+"%)"],["Ложных",r1.false],
+     ["Безобидных расхождений без срабатывания",r1.harmless+" из 12"]],"var(--miss)")}
+   ${runCard("second","Повторный прогон: после доработки правил, не слепой",D.hash2,14,"",[
+     ["Тонких найдено","6 из 6"],["Обычных найдено","8 из 8"],
+     ["Находок-первопричин",r2.findings],["Из них верных",r2.correct+" (100%)"],["Ложных",r2.false],
+     ["Безобидных расхождений без срабатывания",r2.harmless+" из 12"]],"var(--ok)")}
+  </div>
+  <div class="note"><b>Как читать.</b> Первый результат (${D.found1} из 14) это честная оценка на ошибках, которых правила не видели. Второй (14 из 14) показывает, что известные дыры закрыты и что новые правила не шумят на чистых данных и на первом наборе. Правки написаны после того, как ключ был известен, поэтому второй результат не доказывает обобщаемость. Третий набор ошибок не делался.</div>
+  <h3>Что было пропущено в первом прогоне и закрыто доработкой</h3>
+  <p>${nf}: комиссия эквайринга против ставки, врач против клиники визита, ставка зарплаты против справочника врачей, распределение затрат по направлениям. Проверок на эти случаи в сверке не было. Два ложных срабатывания (сдвиг банковской выписки на день и на выходные) сняты правилом сдвига дат.</p>
+  <h3>По каждой ошибке</h3>
+  <div class="tw"><table><thead><tr><th>№</th><th>Ошибка</th><th>Тип</th><th>Первый прогон</th><th>Повторный</th><th>Что показала сверка в первом</th></tr></thead><tbody>${tr}</tbody></table></div>
+  <div class="okbox"><b>Что ещё не сделано.</b> У четырёх найденных ошибок (E04, E05, E08, E14) найден симптом, а причина не названа. Ставка эквайринга берётся из данных (самая частая по сети), договора в данных нет. Проверка материалов проверена на синтетике, на реальных данных допуск нужно калибровать.</div>`}
+const VIEW={
+ overview,
+ pnl,
+ cash,
+ doctors,
+ patients,
+ quality,
+ about:()=>`<h2>О данных</h2><p>Данные синтетические, сгенерированы скриптами проекта; цифры показывают работу метода, а не реальную эффективность клиник. Допущения перечислены в <code>docs/ASSUMPTIONS.md</code>, процесс закрытия месяца в <code>docs/REGLAMENT.md</code>, слепой тест сверки в <code>docs/BLIND_RESULT.md</code>.</p>
+  <p>Материалы: <a href="https://poliduris1977.github.io/clinic-ai-analyst-public1/one-pager.html">одностраничник</a> · <a href="https://poliduris1977.github.io/clinic-ai-analyst-public1/project.html">описание проекта</a> · <a href="https://github.com/Poliduris1977/clinic-ai-analyst-public1">код на GitHub</a>.</p>
+  <p>Версия правил сверки: ${D.hash2} (первый слепой прогон: ${D.hash1}).</p><p class="sub2">Налоги на прибыль, НДС и дивиденды в модели не планируются: остаток денег везде «до налогов и дивидендов».</p>`};
+const fm=v=>(v/1e6).toLocaleString("ru-RU",{minimumFractionDigits:1,maximumFractionDigits:1});
+const MN=["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+function svgChart(series,opt={}){ // series: [{v:[...],c:css color,k:"bar"|"line"}]
+  const W=700,H=210,L=44,B=24,T=8,n=series[0].v.length,all=series.flatMap(s=>s.v);
+  let lo=Math.min(0,...all),hi=Math.max(0,...all);if(hi===lo)hi=lo+1;const y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo)),x=i=>L+(W-L-6)*(i+.5)/n,bw=(W-L-6)/n*.55;
+  let g="";for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4;g+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${y(v)+4}" text-anchor="end">${(v/1e6).toFixed(0)}</text>`}
+  g+=(opt.labels||MN).map((m,i)=>`<text x="${x(i)}" y="${H-7}" text-anchor="middle">${m}</text>`).join("");
+  for(const s of series){ if(s.k==="bar") g+=s.v.map((v,i)=>`<rect x="${x(i)-bw/2}" y="${Math.min(y(v),y(0))}" width="${bw}" height="${Math.abs(y(v)-y(0))}" fill="${s.c}" rx="1"/>`).join("");
+    else g+=`<polyline fill="none" stroke="${s.c}" stroke-width="2.5" points="${s.v.map((v,i)=>x(i)+","+y(v)).join(" ")}"/>`}
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.alt||""}">${g}</svg>`}
+const dev=(a,b)=>{const d=(b-a)/Math.abs(a)*100;return (d>0?"+":"−")+Math.abs(d).toFixed(1).replace(".",",")+"%"};
+function kpi(name,pf,note){const [p,f]=pf,bad=f<p;return `<div class="kpi"><div class="tag">${name}</div><div class="big">${fm(f)}<small> млн ₽</small></div>
+  <div class="kv"><span>План</span><span>${fm(p)}</span><span>Отклонение</span><span class="${bad?"neg":"pos"}">${fm(f-p)} (${dev(p,f)})</span></div><p class="sub2">${note||""}</p></div>`}
+function overview(){const o=D.ov,dr=o.rev[1]-o.rev[0],dp=o.prof[1]-o.prof[0],dc=dp-dr;
+  const top=o.top.map(([n,v])=>`<tr><td>${n}</td><td style="text-align:right" class="${v<0?"neg":"pos"}">${fm(v)}</td></tr>`).join("");
+  return `<h2>Обзор: факт против плана</h2>
+  <p>Выручка ниже плана на ${fm(-dr)} млн ₽, прибыль до налога на ${fm(-dp)} млн ₽. Расходы оказались ниже плана на ${fm(dc)} млн ₽ и компенсировали недобор выручки лишь частично.</p>
+  <div class="kpis">${kpi("Выручка",o.rev,"По данным 1С")}${kpi("Прибыль до налога",o.prof,"Налог на прибыль и дивиденды в модели не планируются")}${kpi("Остаток денег на конец года",o.cash,"До налогов, НДС и дивидендов: реальный остаток ниже")}</div>
+  <div class="chart"><h3>Выручка по месяцам, млн ₽</h3><p class="legend"><span class="sw" style="background:var(--ok)"></span>факт<span class="sw" style="background:var(--miss)"></span>план</p>
+  ${svgChart([{v:o.rev_f,c:"var(--ok)",k:"bar"},{v:o.rev_p,c:"var(--miss)",k:"line"}],{alt:"Выручка по месяцам, факт и план"})}</div>
+  <div class="chart"><h3>Влияние отклонений на прибыль по месяцам, млн ₽</h3><p class="legend">Минус означает, что месяц снизил прибыль относительно плана.</p>
+  ${svgChart([{v:o.prof_imp,c:"var(--bad)",k:"bar"}],{alt:"Влияние на прибыль по месяцам"})}</div>
+  <div class="chart"><h3>Остаток денег на конец месяца, млн ₽</h3><p class="legend"><span class="sw" style="background:var(--ok)"></span>факт<span class="sw" style="background:var(--miss)"></span>план</p>
+  ${svgChart([{v:o.cash_f,c:"var(--ok)",k:"line"},{v:o.cash_p,c:"var(--miss)",k:"line"}],{alt:"Остаток денег, факт и план"})}</div>
+  <h3>Четыре самых больших отклонения, влияние на прибыль, млн ₽</h3><div class="tw"><table><tbody>${top}</tbody></table></div>
+  <div class="okbox"><b>Статус данных.</b> Выручка и затраты из книг 1С после исправлений сверки (14 из 14 найдено, остаток ${D.recon.residual}). Подробности на вкладке «Качество данных». Данные синтетические.</div>`}
+const fk=v=>Math.abs(v)<0.5?"0":Math.abs(v)<1e6?(v<0?"−":"+")+Math.round(Math.abs(v)/1e3)+" тыс.":(v<0?"−":"+")+fm(Math.abs(v));
+function waterfall(items){const W=700,LW=250,RH=24,H=items.length*RH+24,x0=LW+10;let run=0;const seg=[];
+  items.forEach(it=>{if(it.k==="t"){run=it.v;seg.push([null,it.v,it])}else{seg.push([run,run+it.v,it]);run+=it.v}});
+  const all=seg.flatMap(s=>[s[0]===null?items[0].v:s[0],s[1]]),lo=Math.min(...all),hi=Math.max(...all),pad=(hi-lo)*.15,a=lo-pad,b=hi+pad,x=v=>x0+(W-x0-70)*(v-a)/(b-a);
+  const g=seg.map((s,i)=>{const it=s[2],y=i*RH+4,from=s[0]===null?a:s[0],xa=x(Math.min(from,s[1])),xb=x(Math.max(from,s[1])),col=it.k==="t"?"var(--mute)":(it.v<0?"var(--bad)":"var(--ok)");
+    return `<text x="${LW}" y="${y+13}" text-anchor="end">${it.n}</text><rect x="${xa}" y="${y+2}" width="${Math.max(xb-xa,1.5)}" height="${RH-9}" fill="${col}" rx="1"/><text x="${xb+5}" y="${y+13}">${it.k==="t"?fm(it.v):fk(it.v)}</text>`}).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Мост валовой маржи от плана к факту">${g}</svg>`}
+function pnl(){const p=D.pnl,br=p.bridge,eff=br.filter(i=>i.k==="d"),neg=[...eff].sort((a,b)=>a.v-b.v).slice(0,2);
+  const rows=p.rows.map(r=>r.head?`<tr><td colspan="4"><b>${r.n}</b></td></tr>`:`<tr><td style="padding-left:${r.tot?10:24}px">${r.tot?`<b>${r.n}</b>`:r.n}</td><td style="text-align:right">${fm(r.p)}</td><td style="text-align:right">${fm(r.f)}</td><td style="text-align:right" class="${r.imp<0?"neg":(r.imp>0?"pos":"")}">${r.imp?fk(r.imp):"0,0"}</td></tr>`).join("");
+  return `<h2>P&L и план-факт</h2>
+  <p>Валовая маржа ниже плана на ${fm(br[0].v-br[br.length-1].v)} млн ₽. Сильнее всего её снизили «${neg[0].n.toLowerCase()}» (${fk(neg[0].v)} млн ₽) и «${neg[1].n.toLowerCase()}» (${fk(neg[1].v)} млн ₽).</p>
+  <div class="chart"><h3>Мост валовой маржи: план → факт, млн ₽</h3><p class="legend">Ось начинается не с нуля: иначе мелкие эффекты не видны. Зелёное выгодно для маржи, красное нет.</p>${waterfall(br)}</div>
+  <div class="note"><b>Что не доказано.</b> Скидки уменьшили маржу на ${fm(-eff.find(e=>/скидк/i.test(e.n)).v)} млн ₽, но в данных нет связи скидок с потоком пациентов, поэтому вывод «скидки не окупились» или «отмена скидок вернёт маржу» из них не следует. Решение по скидкам за коммерческим директором.</div>
+  <h3>План-факт по статьям, млн ₽</h3><p class="sub2">Влияние на прибыль: плюс выгодно (выручка выше плана или расход ниже плана).</p>
+  <div class="tw"><table><thead><tr><th>Статья</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">Влияние на прибыль</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="okbox"><b>Статус данных.</b> Таблица построена по книгам 1С, мост по данным ERP. Валовая прибыль в них различается на ${Math.round(p.gap)} ₽: это остаточная разница сверки (−96 ₽) и округление взносов. Фильтров по клинике и направлению в этой версии нет.</div>`}
+
+const CUM=[0,31,59,90,120,151,181,212,243,273,304,334];
+function dailyChart(v,imin,dlab){const W=700,H=210,L=44,B=24,T=14,n=v.length,hi=Math.max(...v)*1.05,y=x=>T+(H-T-B)*(1-x/hi),xx=i=>L+(W-L-8)*i/(n-1);
+  let g="";for(let k=0;k<=4;k++){const a=hi*k/4;g+=`<line x1="${L}" x2="${W}" y1="${y(a)}" y2="${y(a)}" stroke="var(--line)"/><text x="${L-5}" y="${y(a)+4}" text-anchor="end">${(a/1e6).toFixed(0)}</text>`}
+  g+=CUM.map((d,i)=>`<text x="${xx(d)}" y="${H-7}">${MN[i]}</text>`).join("");
+  g+=`<polyline fill="none" stroke="var(--ok)" stroke-width="2" points="${v.map((a,i)=>xx(i).toFixed(1)+","+y(a).toFixed(1)).join(" ")}"/>`;
+  const lx=xx(imin),anc=lx>W-170?"end":"start",tx=anc==="end"?lx-8:lx+8;
+  g+=`<circle cx="${lx}" cy="${y(v[imin])}" r="4.5" fill="var(--bad)"/><text x="${tx}" y="${y(v[imin])+4}" text-anchor="${anc}" style="fill:var(--bad)">минимум ${fm(v[imin])} млн, ${dlab}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Остаток денег по дням 2025">${g}</svg>`}
+const pill=s=>`<span class="m ${s==="ок"?"y":"n"}">${s}</span>`;
+function cash(){const c=D.cash,B=n=>c.bdds.find(r=>r.n===n),pt=B("Поступления от пациентов"),ins=B("Поступления от страховых компаний"),pay=B("Итого выплаты"),
+  end=B("Остаток на конец периода"),net=B("Чистое изменение денежных средств"),dm=c.daily[c.dmin],
+  nm=c.dds.find(r=>r.n==="Чистое изменение денежных средств").m;
+  const capm=c.dds.find(r=>r.n==="Приобретение оборудования").m.map((v,i)=>v?MN[i]+" ("+fm(-v)+" млн)":null).filter(Boolean);
+  const cell=(v,cl)=>`<td style="text-align:right" class="${cl||""}">${v===null||v===undefined?"":fm(v)}</td>`;
+  const bt=c.bdds.map(r=>r.head?`<tr><td colspan="4"><b>${r.n}</b></td></tr>`:`<tr><td style="padding-left:${r.tot_row?10:24}px">${r.tot_row?`<b>${r.n}</b>`:r.n}</td>${cell(r.p)}${cell(r.f)}${cell(r.d,r.d<-5e5?"neg":(r.d>5e5?"pos":""))}</tr>`).join("");
+  const dt=c.dds.map(r=>r.head?`<tr><td colspan="14"><b>${r.n}</b></td></tr>`:`<tr><td style="padding-left:${r.tot_row?10:24}px;white-space:nowrap">${r.tot_row?`<b>${r.n}</b>`:r.n}</td>${r.m.map(v=>cell(v)).join("")}${cell(r.tot)}</tr>`).join("");
+  const lt=c.liq.map(l=>`<tr><td>${l.m}</td><td style="text-align:right">${fm(l.close)}</td><td style="text-align:right">${fm(l.minday)}</td><td>${l.mindate}</td><td style="text-align:right">${l.days_min.toFixed(1).replace(".",",")}</td><td>${pill(l.status)}</td></tr>`).join("");
+  return `<h2>Деньги: ДДС, БДДС и ликвидность</h2>
+  <p>Остаток денег на конец года ${fm(end.f)} млн ₽ при плане ${fm(end.p)} млн ₽ (${fm(end.d)} млн). Главная причина: поступления от пациентов ниже плана на ${fm(-pt.d)} млн ₽; поступления от страховых выше плана на ${fm(ins.d)} млн ₽, выплаты ниже плана на ${fm(pay.d)} млн ₽, и это лишь частично компенсировало недобор.</p>
+  <div class="kpis">${kpi("Остаток на конец года",[end.p,end.f],"До налога на прибыль, НДС и дивидендов: реальный остаток ниже")}${kpi("Чистое изменение денег за год",[net.p,net.f],"Операционный поток минус закупки оборудования")}
+  <div class="kpi"><div class="tag">Самый низкий дневной остаток</div><div class="big">${fm(dm)}<small> млн ₽</small></div><div class="kv"><span>Дата</span><span>${c.dmin_date}.2025</span><span>Запас в днях выплат</span><span>${c.days_at_min.toFixed(1).replace(".",",")}</span></div><p class="sub2">Начало года: остаток ${fm(c.start)} млн ₽, затем выплаты зарплаты и аренды</p></div></div>
+  <div class="chart"><h3>Остаток денег по дням, млн ₽</h3><p class="legend">Ось от нуля. Разрывов (остаток ниже нуля) в фактических данных нет.</p>${dailyChart(c.daily,c.dmin,c.dmin_date)}</div>
+  <div class="chart"><h3>Чистое изменение денег по месяцам, млн ₽</h3><p class="legend">Минус в январе: выплаты начала года при низких поступлениях. Закупки оборудования в выплатах: ${capm.length?capm.join(", "):"нет"}.</p>${svgChart([{v:nm,c:"var(--ok)",k:"bar"}],{alt:"Чистое изменение денег по месяцам"})}</div>
+  <h3>Ликвидность по месяцам (факт, резерв 10 дней выплат)</h3><p class="sub2">Запас в минимуме: самый низкий остаток месяца, делённый на среднедневные выплаты месяца. Статус «ниже резерва», если запас меньше 10 дней.</p>
+  <div class="tw"><table><thead><tr><th>Месяц</th><th style="text-align:right">Остаток на конец</th><th style="text-align:right">Минимум дня</th><th>Дата минимума</th><th style="text-align:right">Запас в минимуме, дней</th><th>Статус</th></tr></thead><tbody>${lt}</tbody></table></div>
+  <h3 style="margin-top:22px">Стресс: задержка поступлений от страховых</h3>
+  <p class="sub2">Каждое поступление от страховых сдвигается на выбранное число дней, выплаты и платежи пациентов не меняются. Остаток за день = факт минус страховые поступления за последние N дней. Расчёт идёт в браузере по дням и клиникам и совпадает с листом «Ликвидность» книги (задержка 30 дней, вся сеть).</p>
+  <div class="tw" style="padding:12px 14px;margin-bottom:12px"><div style="display:flex;flex-wrap:wrap;gap:18px;align-items:end">
+   <label>Клиника<br><select id="st-scope" style="font:inherit;padding:4px 6px"><option>Все</option><option>C01</option><option>C02</option><option>C03</option></select></label>
+   <label style="flex:1;min-width:220px">Задержка страховых: <b id="st-delay-v"></b><br><input id="st-delay" type="range" min="0" max="90" step="1" value="30" style="width:100%"></label>
+   <label>Резерв, дней выплат<br><input id="st-res" type="number" min="0" max="60" value="10" style="font:inherit;padding:4px 6px;width:80px"></label></div></div>
+  <div id="st-out"></div>
+  <h3>БДДС: план и факт за год, млн ₽</h3><p class="sub2">Для выплат плюс в отклонении означает, что заплатили меньше плана.</p>
+  <div class="tw"><table><thead><tr><th>Статья</th><th style="text-align:right">План</th><th style="text-align:right">Факт</th><th style="text-align:right">Отклонение</th></tr></thead><tbody>${bt}</tbody></table></div>
+  <h3>ДДС по месяцам, факт, млн ₽</h3>
+  <div class="tw"><table><thead><tr><th>Статья</th>${MN.map(m=>`<th style="text-align:right">${m}</th>`).join("")}<th style="text-align:right">Итого</th></tr></thead><tbody>${dt}</tbody></table></div>
+  <div class="note"><b>Что не доказано.</b> План денег построен на допущениях: доли страховых по направлениям равны фактическим, закупки оборудования равны факту (в бюджете их нет), график платежей принят по фактическим датам. Поэтому отклонение по закупкам равно нулю, а остальное объясняется выручкой, расходами и сроками платежей. Стресс показывает механику сдвига страховых поступлений, а не поведение страховых: частичные оплаты, отсрочки поставщикам и реакция управления в нём не моделируются. Решение по резерву и инвестициям за финансовым директором.</div>
+  <div class="okbox"><b>Статус данных.</b> Остаток на начало года взят из оборотно-сальдовой ведомости (счёт 51), остаток на конец года равен ей же. Налог на прибыль, НДС и дивиденды в модели не учтены, финансовой деятельности (кредитов) нет. Фильтр по клинике есть только в блоке стресса. Данные синтетические.</div>`}
+
+const fT=v=>Math.round(v/1e3).toLocaleString("ru-RU"),pc=v=>Math.round(v*100)+"%";
+function inbar(v,max,col){return `<div class="bar" style="margin:4px 0 0"><i style="width:${Math.round(100*v/max)}%;background:${col}"></i></div>`}
+function doctors(){const d=D.doc,N=d.net.slice(0,4),tot=d.docs.reduce((a,x)=>a+x.con,0),mo=d.docs.reduce((a,x)=>a+x.mo,0),thr=d.thr,low=d.docs.filter(x=>x.pm<thr).sort((a,b)=>a.pm-b.pm),
+  short=d.docs.filter(x=>x.mo<12).length,nm=d.names,maxpm=Math.max(...N.map(g=>g.pm)),maxpc=Math.max(...N.map(g=>g.pc));
+  const gt=N.map(g=>`<tr><td><b>${g.g}</b></td><td style="text-align:right">${g.n}</td><td style="text-align:right">${g.mo}</td><td style="min-width:170px;text-align:right">${fT(g.pm)}${inbar(g.pm,maxpm,"var(--ok)")}</td><td style="min-width:130px;text-align:right">${pc(g.pc)}${inbar(g.pc,maxpc,"var(--miss)")}</td></tr>`).join("");
+  const dt=d.dirs.map(r=>`<tr><td>${r.all?`<b>${r.d}</b>`:`<span class="sub2">${r.d}</span>`}</td><td>${r.all?"<b>все грейды</b>":r.g}</td><td style="text-align:right">${r.n}</td><td style="text-align:right">${fT(r.pm)}</td><td style="text-align:right">${r.all?"":(r.rel>0?"+":"−")+Math.abs(Math.round(r.rel*100))+"%"}</td><td class="sub2">${r.all?"":(r.n<3?"мало врачей (n<3): вывод ненадёжен":"")}</td></tr>`).join("");
+  const dl=[...d.docs].sort((a,b)=>b.pm-a.pm).map(x=>`<tr><td style="white-space:nowrap">${x.n}</td><td>${x.id}</td><td>${x.cl}</td><td>${nm[x.dr]||x.dr}</td><td>${x.g}</td><td style="text-align:right">${x.mo}</td><td style="text-align:right">${fT(x.pm)}</td><td class="sub2">${[x.pm<thr?"ниже минимума":"",x.mo<12?"работал "+x.mo+" мес.":"",(x.id==="D007"||x.id==="D008")?"выручка исправлена сверкой: подтвердить бухгалтером":""].filter(Boolean).join("; ")}</td></tr>`).join("");
+  const lowt=low.map(x=>`${x.n} (${x.id}, ${fT(x.pm)} тыс. ₽)`).join("; ");
+  return `<h2>Врачи: вклад на врача-месяц</h2>
+  <p>Врачи оставили клиникам ${fm(tot)} млн ₽ вклада (прямая маржа минус оплата врача и взносы) за ${mo} врач-месяцев, в среднем ${fT(tot/mo)} тыс. ₽ на врача-месяц. Ниже минимума ${fT(thr)} тыс. ₽ в месяц ${low.length} врача: ${lowt}.</p>
+  <div class="kpis"><div class="kpi"><div class="tag">Врачей в расчёте</div><div class="big">${d.docs.length}</div><p class="sub2">${short} из них работали меньше 12 месяцев: годовые суммы между врачами несопоставимы</p></div>
+  <div class="kpi"><div class="tag">Вклад врачей за год</div><div class="big">${fm(tot)}<small> млн ₽</small></div><p class="sub2">До медперсонала, амортизации, управленческих и коммерческих расходов</p></div>
+  <div class="kpi"><div class="tag">Вклад на врача-месяц</div><div class="big">${fT(tot/mo)}<small> тыс. ₽</small></div><p class="sub2">Врачей ниже минимума ${fT(thr)} тыс.: ${low.length}</p></div></div>
+  <h3>Грейды по сети</h3><p class="sub2">В рублях порядок идёт вверх от junior к lead, в процентах выручки наоборот: ставка оплаты растёт с грейдом, поэтому процент «лучше» у младших чисто арифметически.</p>
+  <div class="tw"><table><thead><tr><th>Грейд</th><th style="text-align:right">Врачей</th><th style="text-align:right">Врач-месяцев</th><th style="text-align:right">Вклад на врача-месяц, тыс. ₽</th><th style="text-align:right">Вклад, % выручки</th></tr></thead><tbody>${gt}</tbody></table></div>
+  <div class="note"><b>Что не доказано.</b> В грейде lead один врач (пластика, 4 месяца), поэтому вывод «lead приносит больше» держится на одном человеке. Затраты на материалы и лаборатории разнесены по нормативу услуг: перерасход конкретного врача не виден, различия между врачами идут от набора услуг. Решение по грейдам и оплате за медицинским директором.</div>
+  <h3>Внутри направлений, вклад на врача-месяц</h3><p class="sub2">Маржа услуг в направлениях разная, поэтому грейды корректнее сравнивать внутри направления. Колонка «к среднему» показывает отклонение от среднего по направлению.</p>
+  <div class="tw"><table><thead><tr><th>Направление</th><th>Грейд</th><th style="text-align:right">Врачей</th><th style="text-align:right">Тыс. ₽ на врача-месяц</th><th style="text-align:right">К среднему</th><th>Примечание</th></tr></thead><tbody>${dt}</tbody></table></div>
+  <h3>Все врачи по вкладу на месяц</h3>
+  <div class="tw"><table><thead><tr><th>Врач</th><th>ID</th><th>Клиника</th><th>Направление</th><th>Грейд</th><th style="text-align:right">Месяцев</th><th style="text-align:right">Вклад на месяц, тыс. ₽</th><th>Пометки</th></tr></thead><tbody>${dl}</tbody></table></div>
+  <div class="okbox"><b>Статус данных.</b> Выручка врачей ${fm(d.docs.reduce((a,x)=>a+x.rev,0))} млн ₽ по данным ERP; два визита без врача (55,0 и 65,7 тыс. ₽) сверка привязала к D008 и D007, исправление средней уверенности. Калькулятор схемы оплаты остаётся в книге <code>Doctors_2025.xlsx</code>, в дашборд он не входит. Фильтров по месяцу и клинике нет. Данные синтетические.</div>`}
+
+const fR=v=>v==null?"—":Math.round(v).toLocaleString("ru-RU");
+const relpill=r=>`<span class="m ${r==="высокая"?"y":"n"}" style="${r==="низкая"?"background:var(--badbg);color:var(--bad)":""}">${r}</span>`;
+function cohortChart(cs){const W=700,H=220,L=48,B=24,T=10,all=cs.flatMap(c=>c.v.filter(x=>x!=null)),hi=Math.max(...all)*1.05,y=v=>T+(H-T-B)*(1-v/hi),x=i=>L+(W-L-10)*i/11;
+  let g="";for(let k=0;k<=4;k++){const a=hi*k/4;g+=`<line x1="${L}" x2="${W}" y1="${y(a)}" y2="${y(a)}" stroke="var(--line)"/><text x="${L-5}" y="${y(a)+4}" text-anchor="end">${Math.round(a/1e3)}</text>`}
+  g+=Array.from({length:12},(_,i)=>`<text x="${x(i)}" y="${H-7}" text-anchor="middle">${i+1}</text>`).join("");
+  for(const c of cs){const pts=c.v.map((a,i)=>a==null?null:[x(i),y(a)]).filter(Boolean);g+=`<polyline fill="none" stroke="${c.c}" stroke-width="2.5" points="${pts.map(q=>q.join(",")).join(" ")}"/><circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3.5" fill="${c.c}"/>`}
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Накопленная выручка на пациента по когортам">${g}</svg>`}
+function patients(){const P=D.pat,C=P.cohorts,F=P.fc,tot=F[F.length-1],dirs=F.filter(r=>!r.tot),low=dirs.filter(r=>r.rel==="низкая"),lowq=low.reduce((a,r)=>a+r.q,0),
+  chv=P.sl.ch.filter(r=>!r.all).map(r=>r.ltv),dv=P.sl.dir.filter(r=>!r.all),chmin=Math.min(...chv),chmax=Math.max(...chv),dmin_=Math.min(...dv.map(r=>r.ltv)),dmax_=Math.max(...dv.map(r=>r.ltv)),rmin=Math.min(...dv.map(r=>r.ret)),rmax=Math.max(...dv.map(r=>r.ret)),
+  jan=C[0],MA=["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+  const pick=[[0,"var(--ok)"],[3,"var(--miss)"],[6,"var(--bad)"],[9,"var(--mute)"]].map(([i,c])=>({v:C[i].ltv,c,n:C[i].n+" ("+C[i].p.toLocaleString("ru-RU")+" пац.)"}));
+  const ct=C.map(c=>`<tr><td>${c.n}</td><td style="text-align:right">${c.p.toLocaleString("ru-RU")}</td>${c.ltv.map(v=>`<td style="text-align:right">${fR(v)}</td>`).join("")}</tr>`).join("")+`<tr><td><b>Пул</b></td><td style="text-align:right"><b>${P.pool.p.toLocaleString("ru-RU")}</b></td>${P.pool.ltv.map(v=>`<td style="text-align:right"><b>${fR(v)}</b></td>`).join("")}</tr>`;
+  const sl=(rows)=>rows.map(r=>`<tr><td>${r.all?`<b>${r.n}</b>`:r.n}</td><td style="text-align:right">${r.p.toLocaleString("ru-RU")}</td><td style="text-align:right">${fR(r.ltv)}</td><td style="text-align:right">${r.v.toFixed(2).replace(".",",")}</td><td style="text-align:right">${pc(r.ret)}</td><td class="sub2">${r.note&&r.note!=="—"?r.note:""}</td></tr>`).join("");
+  const slt=(title,rows)=>`<h3 style="margin-top:16px">${title}</h3><div class="tw"><table><thead><tr><th>Срез</th><th style="text-align:right">Пациентов</th><th style="text-align:right">LTV, ₽ на пациента</th><th style="text-align:right">Визитов на пациента</th><th style="text-align:right">Вернулись (2+ визита)</th><th>Примечание</th></tr></thead><tbody>${sl(rows)}</tbody></table></div>`;
+  const ft=F.map(r=>`<tr><td>${r.tot?`<b>${r.n}</b>`:r.n}</td><td style="text-align:right">${fm(r.iv)}</td><td style="text-align:right">${fm(r.q)}</td><td style="text-align:right">${(r.g>0?"+":"−")+Math.abs(r.g*100).toFixed(1).replace(".",",")}%</td><td style="text-align:right">${fm(r.lo)} – ${fm(r.hi)}</td><td style="text-align:right">±${Math.round(r.err*100)}%</td><td>${relpill(r.rel)}</td></tr>`).join("");
+  const mt=P.meth.map(m=>`<tr><td>${m.n}</td><td style="text-align:right">${Math.round(m.mae*100)}%</td><td style="text-align:right">+${Math.round(m.bias*100)}%</td></tr>`).join("");
+  const fact=[...P.net_m,0,0,0],fore=[...P.net_m.map(()=>0),...tot.m];
+  return `<h2>Пациенты и прогноз</h2>
+  <p>Новых пациентов в 2025 году ${P.new.toLocaleString("ru-RU")}, их выручка ${fm(P.rev)} млн ₽ (${pct(P.rev,P.tot_rev)}% годовой). Прогноз выручки на I квартал 2026: ${fm(tot.q)} млн ₽, коридор ${fm(tot.lo)} – ${fm(tot.hi)} млн. По ${low.length} из ${dirs.length} направлений надёжность низкая, и на них приходится ${pct(lowq,tot.q)}% прогноза.</p>
+  <h2 style="margin-top:22px">LTV пациентов по когортам</h2>
+  <div class="kpis"><div class="kpi"><div class="tag">Новых пациентов 2025</div><div class="big">${P.new.toLocaleString("ru-RU")}</div><p class="sub2">Первый визит в 2025 году; пациенты с историей раньше исключены</p></div>
+  <div class="kpi"><div class="tag">Выручка новых пациентов</div><div class="big">${fm(P.rev)}<small> млн ₽</small></div><p class="sub2">Прочие пациенты (история до 2025): ${fm(P.others)} млн ₽</p></div>
+  <div class="kpi"><div class="tag">LTV за 12 месяцев, январская когорта</div><div class="big">${fR(jan.ltv[11])}<small> ₽</small></div><p class="sub2">${jan.p.toLocaleString("ru-RU")} пациентов: единственная когорта, наблюдаемая все 12 месяцев</p></div></div>
+  <div class="chart"><h3>Накопленная выручка на пациента, тыс. ₽ (по месяцам после первого визита)</h3><p class="legend">${pick.map(c=>`<span class="sw" style="background:${c.c}"></span>${c.n}`).join("")}</p>${cohortChart(pick)}</div>
+  <p class="sub2">Показано только наблюдённое: данные заканчиваются 31.12.2025, поэтому у поздних когорт кривые короче. Прогноза LTV нет.</p>
+  <h3>Все когорты, накопленная выручка на пациента, ₽</h3><p class="sub2">Колонки: месяцы после первого визита (1 = месяц первого визита).</p>
+  <div class="tw"><table><thead><tr><th>Когорта</th><th style="text-align:right">Пациентов</th>${Array.from({length:12},(_,i)=>`<th style="text-align:right">${i+1}</th>`).join("")}</tr></thead><tbody>${ct}</tbody></table></div>
+  <div class="note"><b>Что не доказано.</b> «Пул» на последних возрастах собран из меньшего числа когорт разных сезонов и не является единой кривой жизни пациента: LTV за 12 месяцев известен только по январской когорте. Срезы ниже сравниваются на одном возрасте (${P.k+1}-й месяц, когорты января-${MA[P.kc-1]}). Канал «Повторное обращение» для нового пациента странная метка, оставлена как в источнике.</div>
+  ${slt("По направлению первого визита",P.sl.dir)}${slt("По клинике первого визита",P.sl.cl)}${slt("По каналу привлечения",P.sl.ch)}
+  <p class="sub2">Между каналами LTV различается мало (${fR(chmin)} – ${fR(chmax)} ₽), между направлениями сильно (${fR(dmin_)} – ${fR(dmax_)} ₽); доля вернувшихся от ${pc(rmin)} до ${pc(rmax)}. Причины различий по направлениям в данных не разбирались: нужны цены услуг и повторные визиты по видам услуг.</p>
+  <h2 style="margin-top:22px">Прогноз выручки на январь-март 2026</h2>
+  <div class="chart"><h3>Выручка сети по месяцам, млн ₽: факт 2025 и прогноз</h3><p class="legend"><span class="sw" style="background:var(--ok)"></span>факт<span class="sw" style="background:var(--miss)"></span>прогноз (тренд с затуханием, без сезонности)</p>
+  ${svgChart([{v:fact,c:"var(--ok)",k:"bar"},{v:fore,c:"var(--miss)",k:"bar"}],{labels:[...MN,"янв’26","фев’26","мар’26"],alt:"Выручка сети по месяцам, факт и прогноз"})}</div>
+  <div class="tw"><table><thead><tr><th>Направление</th><th style="text-align:right">IV кв. 2025 факт</th><th style="text-align:right">I кв. 2026 прогноз</th><th style="text-align:right">К IV кварталу</th><th style="text-align:right">Коридор, млн ₽</th><th style="text-align:right">Ошибка отката</th><th>Надёжность</th></tr></thead><tbody>${ft}</tbody></table></div>
+  <div class="note"><b>Как читать.</b> Коридор равен прогнозу ± средней ошибке отката по направлению; коридор итога считается по ошибке отката самого итога (±20%), а не суммой коридоров направлений. Прогнозы по направлениям с низкой надёжностью (${low.map(r=>r.n.toLowerCase()).join(", ")}) нельзя использовать как план. Итог по сети имеет «среднюю» надёжность, но почти половина его суммы собрана из этих направлений. В откате прогноз в среднем занижал факт, поэтому риск по верхней границе больше, чем по нижней.</div>
+  <h3>Проверка методов на 2025 годе (откат)</h3><p class="sub2">Обучение по первым 6-9 месяцам, прогноз трёх следующих. Ошибка по модулю усреднена по 72 наблюдениям, они зависимы: оценка ориентировочная.</p>
+  <div class="tw"><table><thead><tr><th>Метод</th><th style="text-align:right">Средняя абсолютная ошибка</th><th style="text-align:right">Среднее смещение (факт выше прогноза)</th></tr></thead><tbody>${mt}</tbody></table></div>
+  <div class="okbox"><b>Статус данных.</b> Это прогноз по тренду одного года данных, а не бюджет: сезонность по одному году отделить от роста бизнеса нельзя, найм, цены и загрузка кабинетов не учтены. Параметры метода (α=0,5, β=0,3, φ=0,9) не подбирались по данным. Прогноз по врачам, сезонная поправка и изменение параметров остаются в книге <code>Forecast_2026Q1.xlsx</code>. Данные синтетические.</div>`}
+
+function stressCalc(scope,delay,res){const S=D.cash.stress,cls=scope==="Все"?Object.keys(S.cl):[scope],n=S.mon.length,net=Array(n).fill(0),out=Array(n).fill(0),ins=Array(n).fill(0);
+  let open=0;cls.forEach(c=>{open+=S.open[c];for(let i=0;i<n;i++){net[i]+=S.cl[c].net[i];out[i]+=S.cl[c].out[i];ins[i]+=S.cl[c].ins[i]}});
+  const P=[0];for(let i=0;i<n;i++)P.push(P[i]+ins[i]);const bal=[],st=[];let run=open;
+  for(let i=0;i<n;i++){run+=net[i];bal.push(run);st.push(run-(delay>0?P[i+1]-P[Math.max(0,i-delay+1)]:0))}
+  const months=[];for(let k=0;k<12;k++){let mf=Infinity,ms=Infinity,so=0,c=0;for(let i=0;i<n;i++)if(S.mon[i]===k){mf=Math.min(mf,bal[i]);ms=Math.min(ms,st[i]);so+=out[i];c++}
+    const ao=-so/c,sts=(v,d)=>v<0?"разрыв":(d<res?"ниже резерва":"ок");months.push({mf,ms,df:mf/ao,ds:ms/ao,sf:sts(mf,mf/ao),ss:sts(ms,ms/ao)})}
+  const im=a=>a.indexOf(Math.min(...a));
+  return {bal,st,months,minS:Math.min(...st),iS:im(st),minF:Math.min(...bal),iF:im(bal),daysS:Math.min(...months.map(m=>m.ds)),
+    bad:months.filter(m=>m.ss!=="ок").length,gap:months.filter(m=>m.ss==="разрыв").length,badF:months.filter(m=>m.sf!=="ок").length}}
+function firstDelay(scope,res,pred){for(let d=0;d<=365;d++){if(pred(stressCalc(scope,d,res)))return d}return null}
+const dlab=i=>{const d=new Date(Date.UTC(2025,0,1+i));return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")};
+const stpill=s=>`<span class="m ${s==="ок"?"y":"n"}" style="${s==="разрыв"?"background:var(--badbg);color:var(--bad)":""}">${s}</span>`;
+function stressChart(r){const v1=r.bal,v2=r.st,n=v1.length,W=700,H=220,L=44,B=24,T=14,lo=Math.min(0,...v2),hi=Math.max(...v1)*1.05,y=a=>T+(H-T-B)*(1-(a-lo)/(hi-lo)),x=i=>L+(W-L-8)*i/(n-1);
+  let g="";for(let k=0;k<=4;k++){const a=lo+(hi-lo)*k/4;g+=`<line x1="${L}" x2="${W}" y1="${y(a)}" y2="${y(a)}" stroke="var(--line)"/><text x="${L-5}" y="${y(a)+4}" text-anchor="end">${(a/1e6).toFixed(0)}</text>`}
+  g+=CUM.map((d,i)=>`<text x="${x(d)}" y="${H-7}">${MN[i]}</text>`).join("");
+  const pl=(v,c,w)=>`<polyline fill="none" stroke="${c}" stroke-width="${w}" points="${v.map((a,i)=>x(i).toFixed(1)+","+y(a).toFixed(1)).join(" ")}"/>`;
+  g+=pl(v1,"var(--ok)",2)+pl(v2,"var(--bad)",2);
+  const lx=x(r.iS),anc=lx>W-190?"end":"start";
+  g+=`<circle cx="${lx}" cy="${y(r.minS)}" r="4.5" fill="var(--bad)"/><text x="${anc==="end"?lx-8:lx+8}" y="${y(r.minS)+4}" text-anchor="${anc}" style="fill:var(--bad)">минимум ${fm(r.minS)} млн, ${dlab(r.iS)}</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Остаток денег по дням: факт и при задержке страховых">${g}</svg>`}
+function renderStress(){const scope=document.getElementById("st-scope").value,delay=+document.getElementById("st-delay").value,res=Math.max(0,+document.getElementById("st-res").value||0),
+  r=stressCalc(scope,delay,res),same=r.iS===r.iF||Math.abs(r.minS-r.minF)<1;
+  document.getElementById("st-delay-v").textContent=delay+" дн.";
+  const bg=firstDelay(scope,res,x=>x.bad>x.badF),gp=firstDelay(scope,res,x=>x.gap>0);
+  const mt=r.months.map((m,i)=>`<tr><td>${MN[i]}</td><td style="text-align:right">${fm(m.mf)}</td><td style="text-align:right">${fm(m.ms)}</td><td style="text-align:right">${m.ds.toFixed(1).replace(".",",")}</td><td>${stpill(m.sf)}</td><td>${stpill(m.ss)}</td></tr>`).join("");
+  document.getElementById("st-out").innerHTML=`
+  <div class="kpis"><div class="kpi"><div class="tag">Самый низкий дневной остаток при задержке</div><div class="big">${fm(r.minS)}<small> млн ₽</small></div><div class="kv"><span>Дата</span><span>${dlab(r.iS)}.2025</span><span>Факт (без задержки)</span><span>${fm(r.minF)}</span></div></div>
+  <div class="kpi"><div class="tag">Запас в днях выплат, худший месяц</div><div class="big">${r.daysS.toFixed(1).replace(".",",")}</div><div class="kv"><span>Резерв</span><span>${res} дн.</span><span>Месяцев ниже резерва / с разрывом</span><span>${r.bad} / ${r.gap}</span></div></div>
+  <div class="kpi"><div class="tag">Задержка, при которой появляется проблема</div><div class="big" style="font-size:24px">${bg===null?"не появляется":(bg===0?"уже в факте":bg+" дн.")}</div><div class="kv"><span>Первый месяц ниже резерва</span><span>${bg===null?"до 365 дн.":bg+" дн."}</span><span>Первый разрыв (остаток &lt; 0)</span><span>${gp===null?"до 365 дн.":gp+" дн."}</span></div></div></div>
+  <div class="chart"><h3>Остаток по дням, млн ₽: факт и при задержке страховых на ${delay} дн.</h3><p class="legend"><span class="sw" style="background:var(--ok)"></span>факт<span class="sw" style="background:var(--bad)"></span>при задержке (${scope==="Все"?"вся сеть":scope})</p>${stressChart(r)}</div>
+  ${same?`<div class="okbox">Самый низкий остаток года приходится на ${dlab(r.iF)}, до основных поступлений от страховых, поэтому задержка его не меняет. Влияние задержки видно в таблице по месяцам ниже: в запасе дней и остатках более поздних месяцев.</div>`:""}
+  <div class="tw"><table><thead><tr><th>Месяц</th><th style="text-align:right">Минимум факт, млн ₽</th><th style="text-align:right">Минимум при задержке, млн ₽</th><th style="text-align:right">Запас при задержке, дней</th><th>Статус факт</th><th>Статус при задержке</th></tr></thead><tbody>${mt}</tbody></table></div>`}
+function initStress(){["st-scope","st-delay","st-res"].forEach(id=>document.getElementById(id).addEventListener("input",renderStress));renderStress()}
+const nav=document.getElementById("nav"),main=document.getElementById("main");
+function show(id){
+  nav.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",b.dataset.id===id));
+  main.innerHTML=VIEW[id](); if(id==="cash")initStress(); location.hash=id;
+}
+TABS.forEach(([id,t])=>{const b=document.createElement("button");b.type="button";b.role="tab";b.dataset.id=id;b.textContent=t;b.onclick=()=>show(id);nav.appendChild(b)});
+const start=TABS.some(t=>t[0]===location.hash.slice(1))?location.hash.slice(1):"quality";
+show(start); addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(VIEW[h])show(h)});
+document.getElementById("theme").onclick=()=>{const r=document.documentElement;const dark=getComputedStyle(r).getPropertyValue("--bg").trim()==="#14191f";r.dataset.theme=dark?"light":"dark"};
+</script>
+</body>
+</html>
